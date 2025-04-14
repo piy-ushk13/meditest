@@ -8,6 +8,7 @@ import 'package:myapp/login_screen.dart'; // Import the Login screen
 import 'package:myapp/signup_screen.dart'; // Import the Signup screen
 import 'package:myapp/search_screen.dart'; // Import the Search screen
 import 'package:myapp/doctors_screen.dart'; // Import the Doctors screen
+import 'package:myapp/emergency_contacts_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,24 +44,30 @@ class MyApp extends StatelessWidget {
         cardTheme: CardTheme(
           elevation: 2,
           shadowColor: Colors.black.withAlpha(13),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           color: Colors.white,
           margin: const EdgeInsets.symmetric(vertical: 8.0),
         ),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Color(0xFF4A5568)),
           bodyMedium: TextStyle(color: Color(0xFF718096)),
-          titleLarge: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1A202C)),
-          titleMedium: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2D3748)),
-          titleSmall: TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF4A5568)),
+          titleLarge:
+              TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1A202C)),
+          titleMedium:
+              TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2D3748)),
+          titleSmall:
+              TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF4A5568)),
           labelLarge: TextStyle(fontWeight: FontWeight.w600),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: Colors.white,
           selectedItemColor: const Color(0xFF5A67D8),
           unselectedItemColor: Colors.grey.shade400,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+          selectedLabelStyle:
+              const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+          unselectedLabelStyle:
+              const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
           type: BottomNavigationBarType.fixed,
           showUnselectedLabels: true,
           elevation: 0,
@@ -70,7 +77,10 @@ class MyApp extends StatelessWidget {
       routes: {
         LoginScreen.routeName: (context) => const LoginScreen(),
         SignupScreen.routeName: (context) => const SignupScreen(),
-        HomeScreen.routeName: (context) => const HomeScreen(), // Add route for Home
+        HomeScreen.routeName: (context) =>
+            const HomeScreen(), // Add route for Home
+        EmergencyContactsScreen.routeName: (context) =>
+            const EmergencyContactsScreen(), // Add this line
       },
       debugShowCheckedModeBanner: false,
     );
@@ -94,10 +104,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // List of pages corresponding to the BottomNavigationBar items
   final List<Widget> _pages = [
     const HomePageContent(), // Index 0: Home
-    const SearchScreen(),    // Index 1: Search
-    const AiChatScreen(),    // Index 2: Assistant
-    const ProfileScreen(),   // Index 3: Profile
-    const DoctorsScreen(),   // Index 4: Doctors
+    const SearchScreen(), // Index 1: Search
+    const AiChatScreen(), // Index 2: Assistant
+    const ProfileScreen(), // Index 3: Profile
+    const DoctorsScreen(), // Index 4: Doctors
   ];
 
   @override
@@ -107,7 +117,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _tabController = TabController(length: _pages.length, vsync: this); // Use length of _pages
+    _tabController = TabController(
+        length: _pages.length, vsync: this); // Use length of _pages
 
     // Start the initial page animation
     _pageAnimationController.forward();
@@ -145,7 +156,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: AnimatedBuilder( // Keep page transition animation
+        child: AnimatedBuilder(
+          // Keep page transition animation
           animation: _pageAnimationController,
           builder: (context, child) {
             return FadeTransition(
@@ -172,9 +184,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ), // End SafeArea
       ),
-      bottomNavigationBar: Container( // Wrap BottomNavBar for custom shadow/border
+      bottomNavigationBar: Container(
+        // Wrap BottomNavBar for custom shadow/border
         decoration: BoxDecoration(
-          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Colors.white,
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor ??
+              Colors.white,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -187,7 +201,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ],
         ),
-        child: ClipRRect( // Clip the content to the rounded corners
+        child: ClipRRect(
+          // Clip the content to the rounded corners
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -196,7 +211,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             items: <BottomNavigationBarItem>[
               _buildNavItem(Icons.home_rounded, 'Home'),
               _buildNavItem(Icons.search_rounded, 'Search'),
-              _buildNavItem(Icons.smart_toy_rounded, 'Assistant'), // Correct label
+              _buildNavItem(
+                  Icons.smart_toy_rounded, 'Assistant'), // Correct label
               _buildNavItem(Icons.person_rounded, 'Profile'),
               _buildNavItem(Icons.location_on_rounded, 'Doctors'),
             ],
@@ -208,18 +224,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Emergency contact feature activated')),
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const EmergencyContactsScreen(),
+            ),
           );
         },
         backgroundColor: Colors.red.shade400,
         shape: const CircleBorder(),
         child: const Icon(Icons.emergency_outlined, color: Colors.white),
       ).animate().scale(
-        duration: 700.ms,
-        curve: Curves.elasticOut,
-        delay: 300.ms,
-      ),
+            duration: 700.ms,
+            curve: Curves.elasticOut,
+            delay: 300.ms,
+          ),
     );
   }
 
@@ -238,12 +256,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           size: 24,
           color: Theme.of(context).colorScheme.primary,
         ),
-      ).animate().scale(
-        duration: 200.ms,
-        curve: Curves.easeOut,
-        begin: const Offset(0.9, 0.9),
-        end: const Offset(1.0, 1.0),
-      ).fadeIn(duration: 150.ms),
+      )
+          .animate()
+          .scale(
+            duration: 200.ms,
+            curve: Curves.easeOut,
+            begin: const Offset(0.9, 0.9),
+            end: const Offset(1.0, 1.0),
+          )
+          .fadeIn(duration: 150.ms),
       label: label,
     );
   }
@@ -251,7 +272,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
 // The Medication class definition has been removed from here.
 // It is imported from 'package:myapp/medication_details_screen.dart' where needed.
-
 
 // Extracted HomePage Content into its own StatelessWidget
 class HomePageContent extends StatelessWidget {
@@ -284,7 +304,8 @@ class HomePageContent extends StatelessWidget {
       ]
           .animate(interval: 50.ms)
           .fadeIn(duration: 400.ms, curve: Curves.easeOutQuad)
-          .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOutQuad),
+          .slideY(
+              begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOutQuad),
     );
   }
 
@@ -347,10 +368,10 @@ class HomePageContent extends StatelessWidget {
             child: const Icon(Icons.favorite_rounded, color: Colors.white),
           ),
         ).animate().scale(
-          duration: 300.ms,
-          curve: Curves.easeOut,
-          delay: 200.ms,
-        ),
+              duration: 300.ms,
+              curve: Curves.easeOut,
+              delay: 200.ms,
+            ),
       ],
     );
   }
@@ -390,7 +411,8 @@ class HomePageContent extends StatelessWidget {
                     ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withAlpha(51),
                   borderRadius: BorderRadius.circular(20),
@@ -420,27 +442,32 @@ class HomePageContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStatItem(context, '8,546', 'Steps', Icons.directions_walk_rounded),
+              _buildStatItem(
+                  context, '8,546', 'Steps', Icons.directions_walk_rounded),
               _buildStatItem(context, '6.2', 'Hours', Icons.nightlight_rounded),
               _buildStatItem(context, '72', 'BPM', Icons.favorite_rounded),
             ],
           ),
         ],
       ),
-    ).animate().fadeIn(
-      duration: 600.ms,
-      curve: Curves.easeOut,
-      delay: 200.ms,
-    ).slideY(
-      begin: 0.2,
-      end: 0,
-      duration: 600.ms,
-      curve: Curves.easeOutQuart,
-      delay: 200.ms,
-    );
+    )
+        .animate()
+        .fadeIn(
+          duration: 600.ms,
+          curve: Curves.easeOut,
+          delay: 200.ms,
+        )
+        .slideY(
+          begin: 0.2,
+          end: 0,
+          duration: 600.ms,
+          curve: Curves.easeOutQuart,
+          delay: 200.ms,
+        );
   }
 
-  Widget _buildStatItem(BuildContext context, String value, String label, IconData icon) {
+  Widget _buildStatItem(
+      BuildContext context, String value, String label, IconData icon) {
     return Column(
       children: [
         Container(
@@ -580,7 +607,8 @@ class HomePageContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: secondaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(14.0),
@@ -593,7 +621,10 @@ class HomePageContent extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                     ),
-                  ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1, end: 0),
+                  )
+                      .animate()
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: -0.1, end: 0),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -608,11 +639,16 @@ class HomePageContent extends StatelessWidget {
                           color: secondaryColor,
                           size: 20,
                         ),
-                      ).animate().scale(duration: 300.ms, curve: Curves.elasticOut),
+                      )
+                          .animate()
+                          .scale(duration: 300.ms, curve: Curves.elasticOut),
                       const SizedBox(width: 10),
                       Text(
                         'Vitamin D3', // Example name
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface,
                               fontSize: _getResponsiveFontSize(context, 18),
                               fontWeight: FontWeight.bold,
@@ -642,14 +678,19 @@ class HomePageContent extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               ),
               child: const Text('Take Now'),
-            ).animate().scale(delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
+            ).animate().scale(
+                delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
           ],
         ),
       ),
-    ).animate().fadeIn(duration: 400.ms).slideX(begin: 0.2, duration: 400.ms, curve: Curves.easeOut);
+    )
+        .animate()
+        .fadeIn(duration: 400.ms)
+        .slideX(begin: 0.2, duration: 400.ms, curve: Curves.easeOut);
   }
 
   List<Widget> _buildCountdown(BuildContext context) {
@@ -686,10 +727,14 @@ class HomePageContent extends StatelessWidget {
         child: Text(':', style: separatorStyle),
       ),
       _buildTimePart(context, seconds, 'sec', numberStyle, labelStyle),
-    ].animate(interval: 100.ms).fadeIn(duration: 300.ms).slideY(begin: 0.2, end: 0);
+    ]
+        .animate(interval: 100.ms)
+        .fadeIn(duration: 300.ms)
+        .slideY(begin: 0.2, end: 0);
   }
 
-  Widget _buildTimePart(BuildContext context, String value, String label, TextStyle numberStyle, TextStyle labelStyle) {
+  Widget _buildTimePart(BuildContext context, String value, String label,
+      TextStyle numberStyle, TextStyle labelStyle) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
