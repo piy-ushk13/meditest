@@ -1,0 +1,2 @@
+C:/Users/Admin/AndroidStudioProjects/MediAssist/MediAssist_Final/myapp/android/app/.cxx/Debug/m1xt2i4t/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Admin/AndroidStudioProjects/MediAssist/MediAssist_Final/myapp/android/app/.cxx/Debug/m1xt2i4t/armeabi-v7a/CMakeFiles/rebuild_cache.dir

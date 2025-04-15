@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-// Import the details screen
-import 'package:myapp/profile_screen.dart'; // Import the profile screen
-import 'package:myapp/ai_chat_screen.dart'; // Import the AI chat screen
-import 'package:myapp/login_screen.dart'; // Import the Login screen
-import 'package:myapp/signup_screen.dart'; // Import the Signup screen
-import 'package:myapp/search_screen.dart'; // Import the Search screen
-import 'package:myapp/doctors_screen.dart'; // Import the Doctors screen
-import 'package:myapp/emergency_contacts_screen.dart';
+import 'theme.dart';
+import 'doctor_details_screen.dart';
+import 'booking_confirmation_screen.dart';
+import 'search_screen.dart';
+import 'map_view_screen.dart';
+import 'ai_chat_screen.dart';
+import 'profile_screen.dart';
+import 'doctors_screen.dart';
+import 'emergency_contacts_screen.dart';
+import 'signup_screen.dart';
+import 'login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,70 +21,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Set status bar style
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ));
-
     return MaterialApp(
-      title: 'Health App UI',
+      title: 'MediAssist',
       theme: ThemeData(
-        primaryColor: const Color(0xFF5A67D8),
-        scaffoldBackgroundColor: const Color(0xFFF7FAFC),
+        primaryColor: AppTheme.primaryColor,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: AppTheme.primaryColor,
+          secondary: AppTheme.secondaryColor,
+        ),
+        scaffoldBackgroundColor: AppTheme.backgroundColor,
         fontFamily: 'Poppins',
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF5A67D8),
-          secondary: const Color(0xFF38B2AC),
-          brightness: Brightness.light,
-        ).copyWith(
-          surface: Colors.white,
-          onSurface: const Color(0xFF1A202C),
-          primaryContainer: const Color(0xFF5A67D8).withAlpha(26),
-        ),
-        cardTheme: CardTheme(
-          elevation: 2,
-          shadowColor: Colors.black.withAlpha(13),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          color: Colors.white,
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Color(0xFF4A5568)),
-          bodyMedium: TextStyle(color: Color(0xFF718096)),
-          titleLarge:
-              TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1A202C)),
-          titleMedium:
-              TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2D3748)),
-          titleSmall:
-              TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF4A5568)),
-          labelLarge: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF5A67D8),
-          unselectedItemColor: Colors.grey.shade400,
-          selectedLabelStyle:
-              const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle:
-              const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-          type: BottomNavigationBarType.fixed,
-          showUnselectedLabels: true,
-          elevation: 0,
-        ),
       ),
-      initialRoute: LoginScreen.routeName, // Start with Login screen
-      routes: {
-        LoginScreen.routeName: (context) => const LoginScreen(),
-        SignupScreen.routeName: (context) => const SignupScreen(),
-        HomeScreen.routeName: (context) =>
-            const HomeScreen(), // Add route for Home
-        EmergencyContactsScreen.routeName: (context) =>
-            const EmergencyContactsScreen(), // Add this line
-      },
       debugShowCheckedModeBanner: false,
+      initialRoute: '/signup',
+      routes: {
+        '/signup': (context) => const SignupScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/doctor-details': (context) => const DoctorDetailsScreen(),
+        '/booking-confirmation': (context) => const BookingConfirmationScreen(),
+        '/search': (context) => const SearchScreen(),
+        '/map': (context) => const MapViewScreen(),
+        '/ai-chat': (context) => const AiChatScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/doctors': (context) => const DoctorsScreen(),
+        '/emergency': (context) => const EmergencyContactsScreen(),
+      },
     );
   }
 }
@@ -145,12 +109,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _pageAnimationController.forward();
   }
 
-  // Helper method for responsive text scaling (kept for HomePageContent)
-  double _getResponsiveFontSize(BuildContext context, double baseSize) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    return baseSize * (screenWidth / 375).clamp(0.8, 1.2);
-  }
-
   // Build method for _HomeScreenState (was missing)
   @override
   Widget build(BuildContext context) {
@@ -185,10 +143,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ), // End SafeArea
       ),
       bottomNavigationBar: Container(
-        // Wrap BottomNavBar for custom shadow/border
         decoration: BoxDecoration(
-          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor ??
-              Colors.white,
+          color: Colors.white,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -202,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ],
         ),
         child: ClipRRect(
-          // Clip the content to the rounded corners
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -211,14 +166,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             items: <BottomNavigationBarItem>[
               _buildNavItem(Icons.home_rounded, 'Home'),
               _buildNavItem(Icons.search_rounded, 'Search'),
-              _buildNavItem(
-                  Icons.smart_toy_rounded, 'Assistant'), // Correct label
+              _buildNavItem(Icons.smart_toy_rounded, 'Assistant'),
               _buildNavItem(Icons.person_rounded, 'Profile'),
               _buildNavItem(Icons.location_on_rounded, 'Doctors'),
             ],
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
-            // Theme properties are applied from BottomNavigationBarThemeData
+            backgroundColor: Colors.white,
+            selectedItemColor: AppTheme.primaryColor,
+            unselectedItemColor: Colors.grey[400],
+            showUnselectedLabels: true,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
           ),
         ),
       ),
@@ -578,113 +537,105 @@ class HomePageContent extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       color: primaryColor.withOpacity(0.05),
-      child: Container(
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.0),
-          gradient: LinearGradient(
-            colors: [
-              primaryColor.withOpacity(0.05),
-              primaryColor.withOpacity(0.01),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: secondaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(14.0),
-                    ),
-                    child: Text(
-                      'Next Medicine Due',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: secondaryColor.withOpacity(0.9),
-                            fontSize: _getResponsiveFontSize(context, 13),
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 300.ms)
-                      .slideX(begin: -0.1, end: 0),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: secondaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.medication_rounded,
-                          color: secondaryColor,
-                          size: 20,
-                        ),
-                      )
-                          .animate()
-                          .scale(duration: 300.ms, curve: Curves.elasticOut),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Vitamin D3', // Example name
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: _getResponsiveFontSize(context, 18),
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ).animate().fadeIn(duration: 300.ms),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: _buildCountdown(context),
-                  ),
-                ],
-              ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.0),
+            gradient: LinearGradient(
+              colors: [
+                primaryColor.withOpacity(0.05),
+                primaryColor.withOpacity(0.01),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            const SizedBox(width: 16),
-            ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Medicine taken!')),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: secondaryColor,
-                foregroundColor: Colors.white,
-                elevation: 3,
-                shadowColor: Colors.black.withAlpha(40),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: secondaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(14.0),
+                      ),
+                      child: Text(
+                        'Next Medicine Due',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: secondaryColor.withOpacity(0.9),
+                              fontSize: _getResponsiveFontSize(context, 13),
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: secondaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.medication_rounded,
+                            color: secondaryColor,
+                            size: 20,
+                          ),
+                        )
+                            .animate()
+                            .scale(duration: 300.ms, curve: Curves.elasticOut),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Vitamin D3', // Example name
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: _getResponsiveFontSize(context, 18),
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ).animate().fadeIn(duration: 300.ms),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: _buildCountdown(context),
+                    ),
+                  ],
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               ),
-              child: const Text('Take Now'),
-            ).animate().scale(
-                delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
-          ],
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Medicine taken!')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: secondaryColor,
+                  foregroundColor: Colors.white,
+                  elevation: 3,
+                  shadowColor: Colors.black.withAlpha(40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                ),
+                child: const Text('Take Now'),
+              ).animate().scale(
+                  delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
+            ],
+          ),
         ),
       ),
     )

@@ -1,171 +1,546 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
-// Placeholder for medication data - replace with your actual data model
 class Medication {
   final String name;
+  final String description;
   final String dosage;
+  final String form;
+  final String? route;
   final String frequency;
+  final String duration;
+  final String? timing;
   final List<String> sideEffects;
-  final List<DateTime> history;
+  final List<String> precautions;
+  final String activeIngredient;
+  final String manufacturer;
+  final bool prescriptionRequired;
 
-  Medication({
+  const Medication({
     required this.name,
+    required this.description,
     required this.dosage,
+    required this.form,
+    this.route,
     required this.frequency,
+    required this.duration,
+    this.timing,
     required this.sideEffects,
-    required this.history,
+    required this.precautions,
+    required this.activeIngredient,
+    required this.manufacturer,
+    required this.prescriptionRequired,
   });
 }
 
-class MedicationDetailsScreen extends StatefulWidget {
+class MedicationDetailsScreen extends StatelessWidget {
   final Medication medication;
 
-  const MedicationDetailsScreen({super.key, required this.medication});
-
-  @override
-  _MedicationDetailsScreenState createState() => _MedicationDetailsScreenState();
-}
-
-class _MedicationDetailsScreenState extends State<MedicationDetailsScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  const MedicationDetailsScreen({
+    super.key,
+    required this.medication,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Use Theme colors for consistency - Adjust if your theme setup differs
-    final Color primaryColor = Theme.of(context).primaryColor; // Or specific color from your theme
-    final Color accentColor = Theme.of(context).colorScheme.secondary; // Or specific color
-    final Color textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87;
-    final Color subtleTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey.shade600;
-    final Color backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final Color cardBackgroundColor = Theme.of(context).cardColor; // Usually white/light grey in light themes
-
-    // Assuming a light theme based on the image
-    final Color iconColor = primaryColor; // Match icon color from image
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        title: Text(widget.medication.name, style: TextStyle(color: textColor)),
-        backgroundColor: backgroundColor, // Match background
-        elevation: 0, // Flat design like the image
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: textColor),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: primaryColor, // Active tab color
-          unselectedLabelColor: subtleTextColor, // Inactive tab color
-          indicatorColor: primaryColor, // Underline color
-          tabs: const [
-            Tab(text: 'Details'),
-            Tab(text: 'History'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildDetailsTab(context, iconColor, textColor, subtleTextColor, cardBackgroundColor),
-          _buildHistoryTab(context, iconColor, textColor, subtleTextColor, cardBackgroundColor),
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(context, theme),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(theme),
+                  const SizedBox(height: 24),
+                  _buildDosageSection(theme),
+                  const SizedBox(height: 24),
+                  _buildScheduleSection(theme),
+                  const SizedBox(height: 24),
+                  _buildSideEffectsSection(theme),
+                  const SizedBox(height: 24),
+                  _buildPrecautionsSection(theme),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showReminderDialog(context),
+        icon: const Icon(Icons.alarm_add_rounded),
+        label: const Text('Set Reminder'),
+      ).animate().scale(delay: 500.ms),
     );
   }
 
-  Widget _buildDetailsTab(BuildContext context, Color iconColor, Color textColor, Color subtleTextColor, Color cardBackgroundColor) {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        _buildDetailCard(
-          context: context,
-          icon: Icons.medical_services_outlined, // Example icon
-          title: 'Dosage',
-          content: widget.medication.dosage,
-          iconColor: iconColor,
-          textColor: textColor,
-          subtleTextColor: subtleTextColor,
-          cardBackgroundColor: cardBackgroundColor,
+  Widget _buildAppBar(BuildContext context, ThemeData theme) {
+    return SliverAppBar.medium(
+      expandedHeight: 200,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                theme.colorScheme.primary,
+                theme.colorScheme.primaryContainer,
+              ],
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -50,
+                bottom: -50,
+                child: Icon(
+                  Icons.medication_rounded,
+                  size: 200,
+                  color: theme.colorScheme.primary.withOpacity(0.2),
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        _buildDetailCard(
-          context: context,
-          icon: Icons.schedule_outlined, // Example icon
-          title: 'Frequency',
-          content: widget.medication.frequency,
-          iconColor: iconColor,
-          textColor: textColor,
-          subtleTextColor: subtleTextColor,
-          cardBackgroundColor: cardBackgroundColor,
+        title: Text(
+          medication.name,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        const SizedBox(height: 16),
-        _buildDetailCard(
-          context: context,
-          icon: Icons.warning_amber_outlined, // Example icon
-          title: 'Possible Side Effects',
-          content: widget.medication.sideEffects.join('\n'), // Display as list
-          iconColor: iconColor,
-          textColor: textColor,
-          subtleTextColor: subtleTextColor,
-          cardBackgroundColor: cardBackgroundColor,
+      ),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_rounded),
+        onPressed: () => Navigator.pop(context),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.info_outline_rounded),
+          onPressed: () => _showInfoDialog(context),
         ),
       ],
     );
   }
 
-   Widget _buildDetailCard({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String content,
-    required Color iconColor,
-    required Color textColor,
-    required Color subtleTextColor,
-    required Color cardBackgroundColor,
-  }) {
-    return Card(
-      elevation: 1.0, // Subtle shadow like the image cards
-      color: cardBackgroundColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), // Rounded corners
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Icon(icon, color: iconColor, size: 24),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.medication_rounded,
+                size: 32,
+                color: theme.colorScheme.primary,
+              ),
+            ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    medication.name,
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: textColor,
                     ),
-                  ),
+                  ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.2),
                   const SizedBox(height: 4),
                   Text(
-                    content,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: subtleTextColor,
-                      height: 1.4, // Improve readability
+                    medication.description,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                  ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.2),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDosageSection(ThemeData theme) {
+    return _buildSection(
+      theme,
+      'Dosage Information',
+      Icons.medical_information_rounded,
+      [
+        _buildInfoRow(
+          theme,
+          'Strength:',
+          medication.dosage,
+          Icons.medication_liquid_rounded,
+        ),
+        const SizedBox(height: 12),
+        _buildInfoRow(
+          theme,
+          'Form:',
+          medication.form,
+          Icons.medication_rounded,
+        ),
+        if (medication.route != null) ...[
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            theme,
+            'Route:',
+            medication.route!,
+            Icons.route_rounded,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildScheduleSection(ThemeData theme) {
+    return _buildSection(
+      theme,
+      'Schedule',
+      Icons.schedule_rounded,
+      [
+        _buildInfoRow(
+          theme,
+          'Frequency:',
+          medication.frequency,
+          Icons.repeat_rounded,
+        ),
+        const SizedBox(height: 12),
+        _buildInfoRow(
+          theme,
+          'Duration:',
+          medication.duration,
+          Icons.calendar_today_rounded,
+        ),
+        if (medication.timing != null) ...[
+          const SizedBox(height: 12),
+          _buildInfoRow(
+            theme,
+            'Best taken:',
+            medication.timing!,
+            Icons.access_time_rounded,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSideEffectsSection(ThemeData theme) {
+    return _buildSection(
+      theme,
+      'Possible Side Effects',
+      Icons.warning_rounded,
+      [
+        ...medication.sideEffects.map((effect) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 8,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      effect,
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ],
+              ),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildPrecautionsSection(ThemeData theme) {
+    return _buildSection(
+      theme,
+      'Precautions',
+      Icons.shield_rounded,
+      [
+        ...medication.precautions.map((precaution) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 20,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      precaution,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSection(
+    ThemeData theme,
+    String title,
+    IconData icon,
+    List<Widget> children,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
+    ).animate().fadeIn().slideY(begin: 0.2);
+  }
+
+  Widget _buildInfoRow(
+    ThemeData theme,
+    String label,
+    String value,
+    IconData icon,
+  ) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.7),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showReminderDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ReminderSheet(medication: medication),
+    );
+  }
+
+  void _showInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Medication Information'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Active Ingredient: ${medication.activeIngredient}'),
+              const SizedBox(height: 8),
+              Text('Manufacturer: ${medication.manufacturer}'),
+              if (medication.prescriptionRequired) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'This medication requires a prescription',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReminderSheet extends StatefulWidget {
+  final Medication medication;
+
+  const _ReminderSheet({
+    required this.medication,
+  });
+
+  @override
+  State<_ReminderSheet> createState() => _ReminderSheetState();
+}
+
+class _ReminderSheetState extends State<_ReminderSheet> {
+  TimeOfDay _selectedTime = TimeOfDay.now();
+  final List<bool> _selectedDays = List.generate(7, (_) => false);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final padding = MediaQuery.of(context).viewPadding;
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16, 16, 16, 16 + padding.bottom),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                Text(
+                  'Set Reminder',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildTimePicker(theme),
+                const SizedBox(height: 24),
+                _buildDaySelector(theme),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      // TODO: Implement reminder setting
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Reminder set successfully!'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    child: const Text('Set Reminder'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ).animate().slideY(begin: 0.2, curve: Curves.easeOutQuart);
+  }
+
+  Widget _buildTimePicker(ThemeData theme) {
+    return InkWell(
+      onTap: () async {
+        final TimeOfDay? time = await showTimePicker(
+          context: context,
+          initialTime: _selectedTime,
+        );
+        if (time != null) {
+          setState(() {
+            _selectedTime = time;
+          });
+        }
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: theme.colorScheme.outline.withOpacity(0.1),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.access_time_rounded,
+              color: theme.colorScheme.primary,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              'Reminder Time',
+              style: theme.textTheme.titleMedium,
+            ),
+            const Spacer(),
+            Text(
+              _selectedTime.format(context),
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -174,139 +549,49 @@ class _MedicationDetailsScreenState extends State<MedicationDetailsScreen> with 
     );
   }
 
-  Widget _buildHistoryTab(BuildContext context, Color iconColor, Color textColor, Color subtleTextColor, Color cardBackgroundColor) {
-    if (widget.medication.history.isEmpty) {
-      return Center(
-        child: Text(
-          'No history recorded yet.',
-          style: TextStyle(color: subtleTextColor),
-        ),
-      );
-    }
+  Widget _buildDaySelector(ThemeData theme) {
+    final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-    // Sort history, newest first
-    final sortedHistory = List<DateTime>.from(widget.medication.history)
-      ..sort((a, b) => b.compareTo(a));
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      itemCount: sortedHistory.length,
-      itemBuilder: (context, index) {
-        final dateTime = sortedHistory[index];
-        // TODO: Replace with actual date/time formatting logic
-        final formattedDate = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
-        final formattedTime = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
-
-        return HistoryLogItem(
-          date: formattedDate,
-          time: formattedTime,
-          iconColor: iconColor,
-          textColor: textColor,
-          subtleTextColor: subtleTextColor,
-          cardBackgroundColor: cardBackgroundColor,
-        );
-      },
-    );
-  }
-}
-
-// Separate widget for history item to handle micro-interaction state
-class HistoryLogItem extends StatefulWidget {
-  final String date;
-  final String time;
-  final Color iconColor;
-  final Color textColor;
-  final Color subtleTextColor;
-  final Color cardBackgroundColor;
-
-  const HistoryLogItem({
-    super.key,
-    required this.date,
-    required this.time,
-    required this.iconColor,
-    required this.textColor,
-    required this.subtleTextColor,
-    required this.cardBackgroundColor,
-  });
-
-  @override
-  _HistoryLogItemState createState() => _HistoryLogItemState();
-}
-
-class _HistoryLogItemState extends State<HistoryLogItem> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTapDown(TapDownDetails details) {
-    _controller.forward();
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    Future.delayed(const Duration(milliseconds: 100), () {
-       if (mounted) {
-         _controller.reverse();
-       }
-    });
-    // Add any action on tap here, e.g., show details
-    print("History item tapped: ${widget.date} ${widget.time}");
-  }
-
-   void _handleTapCancel() {
-     if (mounted) {
-       _controller.reverse();
-     }
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Card(
-          elevation: 0.5, // Very subtle elevation
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-          color: widget.cardBackgroundColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          child: ListTile(
-            leading: Icon(Icons.check_circle_outline, color: widget.iconColor, size: 22),
-            title: Text(
-              widget.date,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: widget.textColor,
-                fontWeight: FontWeight.w500,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: List.generate(7, (index) {
+        return InkWell(
+          onTap: () {
+            setState(() {
+              _selectedDays[index] = !_selectedDays[index];
+            });
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _selectedDays[index]
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _selectedDays[index]
+                    ? Colors.transparent
+                    : theme.colorScheme.outline.withOpacity(0.1),
               ),
             ),
-            trailing: Text(
-              widget.time,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: widget.subtleTextColor,
+            child: Center(
+              child: Text(
+                days[index],
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: _selectedDays[index]
+                      ? Colors.white
+                      : theme.colorScheme.onSurface,
+                  fontWeight: _selectedDays[index]
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

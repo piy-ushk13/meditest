@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:myapp/medication_details_screen.dart'; // For Medication class and potential navigation
-
-// Assuming theme colors are accessible via Theme.of(context)
-// Or define them explicitly if needed, matching main.dart
-// const Color primaryColor = Color(0xFF5A67D8);
-// const Color secondaryColor = Color(0xFF38B2AC);
-// const Color backgroundColor = Color(0xFFF7FAFC);
-// const Color textColor = Color(0xFF1A202C);
-// const Color subtleTextColor = Color(0xFF718096);
+import 'theme.dart';
+import 'widgets/custom_app_bar.dart';
+import 'widgets/loading_indicator.dart';
+import 'widgets/error_view.dart';
+import 'widgets/page_transitions.dart';
+import 'doctor_details_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -19,25 +16,44 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _selectedFilter = 'All';
+  bool _isLoading = false;
+  String? _error;
 
-  // Dummy data for medication list
-  final List<Medication> _searchResults = [
-    Medication(
-      name: 'Paracetamol 500mg',
-      dosage: 'Generic Medicine • Tablet', // Using dosage field for subtitle
-      frequency: '', // Not used directly in this card
-      sideEffects: ['Pain relief, fever reduction', 'May cause nausea, stomach pain'], // Using sideEffects for info/warnings
-      history: [], // Not used here
-    ),
-    Medication(
-      name: 'Ibuprofen 400mg',
-      dosage: 'NSAID • Tablet',
-      frequency: '',
-      sideEffects: ['Anti-inflammatory, pain relief', 'Avoid on empty stomach'],
-      history: [],
-    ),
-    // Add more dummy medications if needed
+  final List<String> _filters = [
+    'All',
+    'Doctors',
+    'Conditions',
+    'Specialists',
+    'Test Labs',
+    'Medicines',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _performSearch('');
+  }
+
+  Future<void> _performSearch(String query) async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      // Simulate API call
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _error = 'Failed to load search results. Please try again.';
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -45,191 +61,304 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  void _navigateToDetails(Medication medication) {
-     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MedicationDetailsScreen(
-            medication: medication, // Pass the selected medication
-          ),
-        ),
-      );
-  }
-
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        title: Text(
-          'MediAssist AI', // Title from screenshot
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 18,
-              // Placeholder image - replace with actual user image logic if available
-              backgroundImage: NetworkImage('https://via.placeholder.com/150/771796'), // Placeholder
-              backgroundColor: Colors.grey.shade300,
-            ),
-          ),
-        ],
+      backgroundColor: AppTheme.backgroundColor,
+      appBar: const CustomAppBar(
+        title: 'Search',
+        showBackButton: false,
       ),
-      body: ListView( // Use ListView to allow scrolling
-        padding: const EdgeInsets.all(16.0),
+      body: Column(
         children: [
-          // Search Input Field
-          TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search medicines...',
-              prefixIcon: Icon(Icons.search, color: colorScheme.primary),
-              filled: true,
-              fillColor: colorScheme.surface, // White background
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide.none, // No border needed if filled
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 14.0), // Adjust padding
-            ),
-            onChanged: (value) {
-              // TODO: Implement search filtering logic
-            },
-          ).animate().fadeIn(delay: 100.ms).slideY(begin: -0.1),
-          const SizedBox(height: 16),
-
-          // Action Buttons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  icon: Icon(Icons.camera_alt_outlined, color: colorScheme.primary),
-                  label: Text('Scan Medicine', style: TextStyle(color: colorScheme.primary)),
-                  onPressed: () {
-                    // TODO: Implement Scan Medicine
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  icon: Icon(Icons.mic_none_rounded, color: colorScheme.primary),
-                  label: Text('Voice Search', style: TextStyle(color: colorScheme.primary)),
-                  onPressed: () {
-                    // TODO: Implement Voice Search
-                  },
-                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: colorScheme.primary.withOpacity(0.5)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  ),
-                ),
-              ),
-            ],
-          ).animate().fadeIn(delay: 200.ms),
-          const SizedBox(height: 24),
-
-          // Search Results List
-          // Using dummy data for now
-          ..._searchResults.map((med) => _buildMedicationCard(context, med))
-              .toList()
-              .animate(interval: 100.ms)
-              .fadeIn(delay: 300.ms)
-              .slideY(begin: 0.1),
-
+          _buildSearchHeader(),
+          _buildFilterChips(),
+          Expanded(
+            child: _buildContent(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildMedicationCard(BuildContext context, Medication medication) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  Widget _buildContent() {
+    if (_isLoading) {
+      return const LoadingIndicator(
+        message: 'Searching...',
+      );
+    }
 
-    // Extract info and warnings from sideEffects list (assuming specific structure)
-    String infoText = medication.sideEffects.isNotEmpty ? medication.sideEffects[0] : 'No information available.';
-    String warningText = medication.sideEffects.length > 1 ? medication.sideEffects[1] : '';
+    if (_error != null) {
+      return ErrorView(
+        message: _error!,
+        actionLabel: 'Retry',
+        onActionPressed: () => _performSearch(_searchController.text),
+      );
+    }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      elevation: 1, // Subtle elevation
-      shadowColor: Colors.black.withOpacity(0.05),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      color: colorScheme.surface, // White card background
-      child: InkWell( // Make card tappable
-        borderRadius: BorderRadius.circular(12.0),
-        onTap: () => _navigateToDetails(medication),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      medication.name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.bookmark_border_rounded, color: colorScheme.primary.withOpacity(0.7)),
-                ],
+    return _buildSearchResults();
+  }
+
+  Widget _buildSearchHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search doctors, conditions, or medicines',
+                prefixIcon: const Icon(Icons.search,
+                    color: AppTheme.textSecondaryColor),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.mic, color: AppTheme.primaryColor),
+                  onPressed: () {
+                    // Implement voice search
+                  },
+                ),
+                filled: true,
+                fillColor: AppTheme.backgroundColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
-              const SizedBox(height: 4),
-              Text(
-                medication.dosage, // Using dosage as subtitle
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+              onChanged: (value) {
+                setState(() {
+                  _performSearch(value);
+                });
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.tune, color: Colors.white),
+              onPressed: () {
+                // Show advanced filters
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChips() {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _filters.length,
+        itemBuilder: (context, index) {
+          final filter = _filters[index];
+          final isSelected = _selectedFilter == filter;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8, top: 12, bottom: 12),
+            child: FilterChip(
+              label: Text(filter),
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(() {
+                  _selectedFilter = filter;
+                });
+              },
+              backgroundColor: Colors.white,
+              selectedColor: AppTheme.primaryColor.withOpacity(0.1),
+              checkmarkColor: AppTheme.primaryColor,
+              labelStyle: TextStyle(
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : AppTheme.textSecondaryColor,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color:
+                      isSelected ? AppTheme.primaryColor : Colors.grey.shade300,
                 ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: Colors.blue.shade600),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      infoText,
-                      style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.8)),
-                    ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 10,
+      itemBuilder: (context, index) {
+        return _buildSearchResultCard(
+          title: 'Dr. Wesley Cain',
+          subtitle: 'Pulmonologist • St. Memorial Hospital',
+          rating: 4.5,
+          experience: '8+ years',
+          nextAvailable: '4:30 PM Today',
+          distance: '2.5 km away',
+          imageUrl: 'https://placeholder.com/150',
+          onTap: () {
+            context.pushWithTransition(
+              const DoctorDetailsScreen(),
+              transitionType: 'slide',
+            );
+          },
+        );
+      },
+    ).animate().fadeIn(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+  }
+
+  Widget _buildSearchResultCard({
+    required String title,
+    required String subtitle,
+    required double rating,
+    required String experience,
+    required String nextAvailable,
+    required String distance,
+    required String imageUrl,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  image: DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
                   ),
-                ],
+                ),
               ),
-              if (warningText.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Row(
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange.shade700),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        warningText,
-                        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.8)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppTheme.textSecondaryColor,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star,
+                          size: 16,
+                          color: Colors.amber[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          rating.toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Icon(
+                          Icons.work,
+                          size: 16,
+                          color: Colors.blue[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          experience,
+                          style: const TextStyle(
+                            color: AppTheme.textSecondaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 14,
+                                color: AppTheme.primaryColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                nextAvailable,
+                                style: TextStyle(
+                                  color: AppTheme.primaryColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          distance,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ]
+              ),
             ],
           ),
         ),

@@ -1,0 +1,1 @@
+C:\Users\Admin\AndroidStudioProjects\MediAssist\MediAssist_Final\myapp\build\app\intermediates\cxx\Debug\m1xt2i4t\obj\x86_64
