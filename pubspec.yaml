@@ -23,6 +23,11 @@ dependencies:
   provider: ^6.1.2
   google_fonts: ^6.1.0
   flutter_rating_bar: ^4.0.1
+  http: ^1.2.0
+  speech_to_text: ^6.6.0
+  flutter_tts: ^3.8.5
+  lottie: ^3.0.0
+  avatar_glow: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +39,7 @@ flutter:
   
   assets:
     - assets/frames/
+    - assets/animations/
     
   fonts:
     - family: Poppins

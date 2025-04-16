@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'theme.dart';
 import 'widgets/custom_app_bar.dart';
+import 'widgets/voice_interaction_widget.dart';
+import 'services/gemini_service.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -13,41 +16,86 @@ class AiChatScreen extends StatefulWidget {
 class _AiChatScreenState extends State<AiChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final List<ChatMessage> _messages = [];
+  final FlutterTts _flutterTts = FlutterTts();
   bool _isTyping = false;
+  bool _showVoiceMode = false;
+  bool _isAiSpeaking = false;
+  final GeminiService _geminiService = GeminiService();
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+  }
+
+  void _initTts() async {
+    await _flutterTts.setLanguage('en-US');
+    await _flutterTts.setPitch(1.0);
+    await _flutterTts.setSpeechRate(0.5);
+    
+    _flutterTts.setCompletionHandler(() {
+      setState(() {
+        _isAiSpeaking = false;
+      });
+    });
+  }
 
   @override
   void dispose() {
     _messageController.dispose();
+    _flutterTts.stop();
     super.dispose();
   }
 
-  void _handleSendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
-
+  Future<void> _processVoiceInput(String text) async {
     setState(() {
       _messages.add(ChatMessage(
-        text: _messageController.text,
+        text: text,
         isUser: true,
         timestamp: DateTime.now(),
       ));
       _isTyping = true;
     });
 
-    // Simulate AI response
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      final response = await _geminiService.generateResponse(text);
+
       if (mounted) {
         setState(() {
           _messages.add(ChatMessage(
-            text: "I understand your concern. Let me help you with that...",
+            text: response,
+            isUser: false,
+            timestamp: DateTime.now(),
+          ));
+          _isTyping = false;
+        });
+
+        // Speak the response
+        setState(() {
+          _isAiSpeaking = true;
+        });
+        await _flutterTts.speak(response);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(
+            text: "Sorry, I couldn't process that request. Please try again.",
             isUser: false,
             timestamp: DateTime.now(),
           ));
           _isTyping = false;
         });
       }
-    });
+    }
+  }
 
+  Future<void> _handleSendMessage() async {
+    if (_messageController.text.trim().isEmpty) return;
+
+    final message = _messageController.text;
     _messageController.clear();
+    await _processVoiceInput(message);
   }
 
   @override
@@ -59,15 +107,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
         showBackButton: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.mic),
+            onPressed: () {
+              setState(() {
+                _showVoiceMode = true;
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {
-              // Show info dialog
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('About AI Assistant'),
                   content: const Text(
-                    'Your personal health assistant powered by AI. Ask any health-related questions or seek guidance about medications, symptoms, and lifestyle.',
+                    'Your personal health assistant powered by AI. Ask any health-related questions or seek guidance about medications, symptoms, and lifestyle. You can type or use voice mode!',
                   ),
                   actions: [
                     TextButton(
@@ -81,14 +136,36 @@ class _AiChatScreenState extends State<AiChatScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child:
-                _messages.isEmpty ? _buildWelcomeMessage() : _buildChatList(),
+          Column(
+            children: [
+              Expanded(
+                child: _messages.isEmpty
+                    ? _buildWelcomeMessage()
+                    : _buildChatList(),
+              ),
+              if (_isTyping) _buildTypingIndicator(),
+              _buildMessageInput(),
+            ],
           ),
-          if (_isTyping) _buildTypingIndicator(),
-          _buildMessageInput(),
+          if (_showVoiceMode)
+            Positioned.fill(
+              child: VoiceInteractionWidget(
+                isAiSpeaking: _isAiSpeaking,
+                onVoiceResult: (text) async {
+                  setState(() {
+                    _showVoiceMode = false;
+                  });
+                  await _processVoiceInput(text);
+                },
+                onClose: () {
+                  setState(() {
+                    _showVoiceMode = false;
+                  });
+                },
+              ),
+            ),
         ],
       ),
     );
