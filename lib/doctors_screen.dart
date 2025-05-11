@@ -125,7 +125,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -174,7 +174,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                 });
               },
               backgroundColor: Colors.white,
-              selectedColor: AppTheme.primaryColor.withOpacity(0.1),
+              selectedColor: AppTheme.primaryColor.withValues(alpha: 0.1),
               checkmarkColor: AppTheme.primaryColor,
               labelStyle: TextStyle(
                 color: isSelected ? AppTheme.primaryColor : Colors.black87,

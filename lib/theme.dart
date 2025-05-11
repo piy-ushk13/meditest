@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// Extension to add withValues method to Color class
+extension ColorExtension on Color {
+  Color withValues({int? red, int? green, int? blue, double? alpha}) {
+    return Color.fromRGBO(
+      red ?? r.toInt(),
+      green ?? g.toInt(),
+      blue ?? b.toInt(),
+      alpha ?? a,
+    );
+  }
+}
+
 class AppTheme {
   static const primaryColor = Color(0xFF4A5BF6);
   static const secondaryColor = Color(0xFF8E94F2);

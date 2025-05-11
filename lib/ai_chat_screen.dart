@@ -29,28 +29,52 @@ class _AiChatScreenState extends State<AiChatScreen> {
   }
 
   void _initTts() async {
-    await _flutterTts.setLanguage('en-US');
-    await _flutterTts.setPitch(1.0);
-    await _flutterTts.setSpeechRate(0.5);
-    
-    _flutterTts.setCompletionHandler(() {
-      setState(() {
-        _isAiSpeaking = false;
+    try {
+      await _flutterTts.setLanguage('en-US');
+      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setSpeechRate(0.5);
+
+      _flutterTts.setCompletionHandler(() {
+        if (mounted) {
+          setState(() {
+            _isAiSpeaking = false;
+          });
+        }
       });
-    });
+
+      _flutterTts.setErrorHandler((error) {
+        if (mounted) {
+          setState(() {
+            _isAiSpeaking = false;
+          });
+        }
+      });
+    } catch (e) {
+      // Handle initialization errors silently
+    }
   }
 
   @override
   void dispose() {
     _messageController.dispose();
-    _flutterTts.stop();
+    try {
+      _flutterTts.stop();
+    } catch (e) {
+      // Ignore errors during disposal
+    }
     super.dispose();
   }
 
   Future<void> _processVoiceInput(String text) async {
+    if (!mounted) return;
+
+    // Limit input text length to prevent issues
+    final limitedText =
+        text.length > 500 ? '${text.substring(0, 497)}...' : text;
+
     setState(() {
       _messages.add(ChatMessage(
-        text: text,
+        text: limitedText,
         isUser: true,
         timestamp: DateTime.now(),
       ));
@@ -58,23 +82,39 @@ class _AiChatScreenState extends State<AiChatScreen> {
     });
 
     try {
-      final response = await _geminiService.generateResponse(text);
+      final response = await _geminiService.generateResponse(limitedText);
 
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            text: response,
-            isUser: false,
-            timestamp: DateTime.now(),
-          ));
-          _isTyping = false;
-        });
+      if (!mounted) return;
 
-        // Speak the response
+      setState(() {
+        _messages.add(ChatMessage(
+          text: response,
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+        _isTyping = false;
+      });
+
+      // Speak the response with error handling
+      try {
+        // Limit TTS text to prevent crashes
+        String ttsText = response;
+        if (ttsText.length > 1000) {
+          ttsText = '${ttsText.substring(0, 997)}...';
+        }
+
         setState(() {
           _isAiSpeaking = true;
         });
-        await _flutterTts.speak(response);
+
+        await _flutterTts.speak(ttsText);
+      } catch (ttsError) {
+        // If TTS fails, just continue without speaking
+        if (mounted) {
+          setState(() {
+            _isAiSpeaking = false;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -93,9 +133,21 @@ class _AiChatScreenState extends State<AiChatScreen> {
   Future<void> _handleSendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
-    final message = _messageController.text;
-    _messageController.clear();
-    await _processVoiceInput(message);
+    try {
+      final message = _messageController.text;
+      _messageController.clear();
+      await _processVoiceInput(message);
+    } catch (e) {
+      // Handle any unexpected errors
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred. Please try again.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -179,7 +231,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -272,7 +324,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -290,7 +342,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           if (isUser)
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
               child: Icon(
                 Icons.person,
                 size: 20,
@@ -305,7 +357,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   Widget _buildAvatar() {
     return CircleAvatar(
       radius: 16,
-      backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+      backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
       child: Icon(
         Icons.smart_toy_rounded,
         size: 20,
@@ -377,7 +429,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),

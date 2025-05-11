@@ -240,7 +240,7 @@ class EmergencyContactsScreen extends StatelessWidget {
             child: ListTile(
               onTap: () => _makePhoneCall(contact['number']!),
               leading: CircleAvatar(
-                backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                 child: Text(
                   contact['name']!.substring(0, 1),
                   style: TextStyle(
@@ -287,7 +287,7 @@ class EmergencyContactsScreen extends StatelessWidget {
             leading: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -346,7 +346,7 @@ class EmergencyContactsScreen extends StatelessWidget {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Center(

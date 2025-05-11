@@ -74,7 +74,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: AppTheme.successColor.withOpacity(0.1),
+                color: AppTheme.successColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ).animate().fadeIn(duration: 500.ms).slideY(
@@ -147,7 +147,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -194,7 +194,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: AppTheme.primaryColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -249,7 +249,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -275,16 +275,19 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
               bottom: 8,
               child: FloatingActionButton.small(
                 onPressed: () {
+                  final scaffoldMessenger = ScaffoldMessenger.of(context);
                   MapUtils.openMap(
                     hospitalLocation,
                     destinationName: 'St. Memorial Hospital',
                   ).catchError((error) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(error.toString()),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+                    if (mounted) {
+                      scaffoldMessenger.showSnackBar(
+                        SnackBar(
+                          content: Text(error.toString()),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   });
                 },
                 backgroundColor: Colors.white,
@@ -314,7 +317,7 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, -2),

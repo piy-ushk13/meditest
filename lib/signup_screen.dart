@@ -49,10 +49,12 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pushReplacementNamed(context, '/login');
-        return false;
+    return PopScope<dynamic>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
       },
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
@@ -113,7 +115,7 @@ class _SignupScreenState extends State<SignupScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -134,7 +136,10 @@ class _SignupScreenState extends State<SignupScreen> {
         Text(
           'Sign up to get started with MediAssist',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
               ),
         ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.2),
       ],
@@ -276,7 +281,10 @@ class _SignupScreenState extends State<SignupScreen> {
             TextSpan(
               text: 'I agree to the ',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
               ),
               children: [
                 TextSpan(
@@ -414,7 +422,8 @@ class _SignupScreenState extends State<SignupScreen> {
         Text(
           'Already have an account? ',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         TextButton(

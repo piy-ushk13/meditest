@@ -34,10 +34,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pushReplacementNamed(context, '/signup');
-        return false;
+    return PopScope<dynamic>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pushReplacementNamed(context, '/signup');
+        }
       },
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
@@ -87,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -108,7 +110,10 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           'Sign in to continue to MediAssist',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
               ),
         ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.2),
       ],
@@ -305,7 +310,8 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           'Don\'t have an account? ',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         TextButton(

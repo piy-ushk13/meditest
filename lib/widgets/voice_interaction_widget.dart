@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import '../theme.dart';
+import 'ai_chat_sphere.dart';
 
 class VoiceInteractionWidget extends StatefulWidget {
   final Function(String) onVoiceResult;
@@ -32,45 +33,126 @@ class _VoiceInteractionWidgetState extends State<VoiceInteractionWidget> {
   }
 
   void _initSpeech() async {
-    await _speechToText.initialize();
-    setState(() {});
+    try {
+      await _speechToText.initialize(
+        onError: (error) {
+          // Handle initialization errors
+          if (mounted) {
+            setState(() {
+              _lastWords = "Speech recognition error: $error";
+            });
+          }
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          // Update UI if needed
+        });
+      }
+    } catch (e) {
+      // Handle any exceptions during initialization
+      if (mounted) {
+        setState(() {
+          _lastWords = "Could not initialize speech recognition";
+        });
+      }
+    }
   }
 
   void _startListening() async {
-    _lastWords = '';
-    if (await _speechToText.initialize()) {
-      setState(() {
-        _isListening = true;
-      });
+    try {
+      _lastWords = '';
+
+      // Check if speech recognition is available
+      if (!_speechToText.isAvailable) {
+        bool available = await _speechToText.initialize(
+          onError: (error) {
+            if (mounted) {
+              setState(() {
+                _isListening = false;
+              });
+            }
+          },
+        );
+
+        if (!available) {
+          if (mounted) {
+            setState(() {
+              _lastWords = "Speech recognition not available";
+              _isListening = false;
+            });
+          }
+          return;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _isListening = true;
+        });
+      }
+
       await _speechToText.listen(
         onResult: (result) {
-          setState(() {
-            _lastWords = result.recognizedWords;
-          });
+          if (mounted) {
+            setState(() {
+              _lastWords = result.recognizedWords;
+            });
+          }
         },
-        cancelOnError: true,
-        listenMode: ListenMode.confirmation,
+        listenOptions: SpeechListenOptions(
+          cancelOnError: true,
+          listenMode: ListenMode.confirmation,
+          partialResults: true,
+        ),
       );
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+          _lastWords = "Error starting speech recognition";
+        });
+      }
     }
   }
 
   void _stopListening() async {
-    await _speechToText.stop();
-    setState(() {
-      _isListening = false;
-      if (_lastWords.isNotEmpty) {
-        _isProcessing = true;
+    try {
+      await _speechToText.stop();
+
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+          if (_lastWords.isNotEmpty) {
+            _isProcessing = true;
+          }
+        });
       }
-    });
-    if (_lastWords.isNotEmpty) {
-      widget.onVoiceResult(_lastWords);
+
+      // Limit text length to prevent crashes
+      String processedText = _lastWords;
+      if (processedText.length > 500) {
+        processedText = "${processedText.substring(0, 497)}...";
+      }
+
+      if (processedText.isNotEmpty && mounted) {
+        widget.onVoiceResult(processedText);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+          _isProcessing = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.9),
+      color: Colors.black.withValues(alpha: 0.9),
       child: Stack(
         children: [
           Center(
@@ -82,14 +164,11 @@ class _VoiceInteractionWidgetState extends State<VoiceInteractionWidget> {
                   animate: _isListening || widget.isAiSpeaking,
                   duration: const Duration(milliseconds: 2000),
                   repeat: true,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: _getAvatarColor(),
-                    child: Icon(
-                      _getIcon(),
-                      size: 36,
-                      color: _getIconColor(),
-                    ),
+                  child: AiChatSphere(
+                    isUserSpeaking: _isListening,
+                    audioLevel: _getAudioLevel(),
+                    isAiSpeaking: widget.isAiSpeaking,
+                    size: 120.0,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -101,7 +180,9 @@ class _VoiceInteractionWidgetState extends State<VoiceInteractionWidget> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                if (_lastWords.isNotEmpty && !widget.isAiSpeaking && !_isProcessing)
+                if (_lastWords.isNotEmpty &&
+                    !widget.isAiSpeaking &&
+                    !_isProcessing)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
@@ -140,7 +221,10 @@ class _VoiceInteractionWidgetState extends State<VoiceInteractionWidget> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: (_isListening ? Colors.red : AppTheme.primaryColor).withOpacity(0.3),
+                          color: (_isListening
+                                  ? Colors.red
+                                  : AppTheme.primaryColor)
+                              .withValues(alpha: 0.3),
                           blurRadius: 10,
                           spreadRadius: 2,
                         ),
@@ -166,23 +250,15 @@ class _VoiceInteractionWidgetState extends State<VoiceInteractionWidget> {
     return AppTheme.primaryColor;
   }
 
-  Color _getAvatarColor() {
-    if (widget.isAiSpeaking) return Colors.blue.withOpacity(0.2);
-    if (_isListening) return Colors.red.withOpacity(0.2);
-    return AppTheme.primaryColor.withOpacity(0.2);
-  }
+  // Audio level simulation for the sphere
+  double _getAudioLevel() {
+    if (!_isListening) return 0.0;
 
-  Color _getIconColor() {
-    if (widget.isAiSpeaking) return Colors.blue;
-    if (_isListening) return Colors.red;
-    return AppTheme.primaryColor;
-  }
-
-  IconData _getIcon() {
-    if (widget.isAiSpeaking) return Icons.record_voice_over;
-    if (_isProcessing) return Icons.psychology;
-    if (_isListening) return Icons.mic;
-    return Icons.mic_none;
+    // Simulate audio level based on whether we're listening
+    // In a real implementation, this would come from the speech recognition API
+    return _isListening
+        ? 0.5 + (DateTime.now().millisecondsSinceEpoch % 1000) / 2000
+        : 0.0;
   }
 
   String _getStatusText() {

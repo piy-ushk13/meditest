@@ -149,8 +149,9 @@ class _MapViewScreenState extends State<MapViewScreen> {
               setState(() {
                 _isMapTypeNormal = !_isMapTypeNormal;
               });
-              _mapController
-                  .setMapStyle(_isMapTypeNormal ? null : _darkMapStyle);
+              setState(() {
+                // We need to rebuild the GoogleMap widget with the new style
+              });
             },
             backgroundColor: Colors.white,
             child: Icon(
@@ -211,14 +212,34 @@ class _MapViewScreenState extends State<MapViewScreen> {
   }
 
   Widget _buildMap() {
+    // Define map styles
+    final String basicMapStyle = '''
+    [
+      {
+        "featureType": "poi",
+        "elementType": "labels",
+        "stylers": [
+          {"visibility": "off"}
+        ]
+      },
+      {
+        "featureType": "transit",
+        "elementType": "labels",
+        "stylers": [
+          {"visibility": "off"}
+        ]
+      }
+    ]
+    ''';
+
     return GoogleMap(
       initialCameraPosition: const CameraPosition(
         target: LatLng(37.7749, -122.4194),
         zoom: 14,
       ),
+      style: _isMapTypeNormal ? basicMapStyle : _darkMapStyle,
       onMapCreated: (controller) {
         _mapController = controller;
-        _setMapStyle();
       },
       markers: _markers,
       myLocationEnabled: true,
@@ -234,26 +255,6 @@ class _MapViewScreenState extends State<MapViewScreen> {
     );
   }
 
-  Future<void> _setMapStyle() async {
-    const style = [
-      {
-        "featureType": "poi",
-        "elementType": "labels",
-        "stylers": [
-          {"visibility": "off"}
-        ]
-      },
-      {
-        "featureType": "transit",
-        "elementType": "labels",
-        "stylers": [
-          {"visibility": "off"}
-        ]
-      }
-    ];
-    await _mapController.setMapStyle(style.toString());
-  }
-
   Widget _buildHeader() {
     return SafeArea(
       child: Padding(
@@ -266,7 +267,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     spreadRadius: 1,
                     blurRadius: 8,
                     offset: const Offset(0, 2),
@@ -340,7 +341,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
           // Implement filter logic
         },
         backgroundColor: Colors.white,
-        selectedColor: AppTheme.primaryColor.withOpacity(0.1),
+        selectedColor: AppTheme.primaryColor.withValues(alpha: 0.1),
         checkmarkColor: AppTheme.primaryColor,
         labelStyle: TextStyle(
           color:
@@ -380,7 +381,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 spreadRadius: 1,
                 blurRadius: 8,
                 offset: const Offset(0, 2),

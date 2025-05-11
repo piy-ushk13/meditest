@@ -203,7 +203,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -402,8 +402,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Colors.white.withOpacity(0.2)
-                      : AppTheme.primaryColor.withOpacity(0.1),
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : AppTheme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -429,7 +429,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, -2),

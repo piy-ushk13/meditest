@@ -11,6 +11,7 @@ import 'doctors_screen.dart';
 import 'emergency_contacts_screen.dart';
 import 'signup_screen.dart';
 import 'login_screen.dart';
+import 'onboarding/onboarding_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,8 +34,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Poppins',
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/signup',
+      initialRoute: '/onboarding',
       routes: {
+        '/onboarding': (context) => const OnboardingScreen(),
         '/signup': (context) => const SignupScreen(),
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
@@ -82,7 +84,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 400),
     );
     _tabController = TabController(
-        length: _pages.length, vsync: this); // Use length of _pages
+      length: _pages.length,
+      vsync: this,
+    ); // Use length of _pages
 
     // Start the initial page animation
     _pageAnimationController.forward();
@@ -127,19 +131,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 position: Tween<Offset>(
                   begin: const Offset(0, 0.05),
                   end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  curve: Curves.easeOutQuart,
-                  parent: _pageAnimationController,
-                )),
+                ).animate(
+                  CurvedAnimation(
+                    curve: Curves.easeOutQuart,
+                    parent: _pageAnimationController,
+                  ),
+                ),
                 child: child,
               ),
             );
           },
           // Use IndexedStack to keep the state of each page
-          child: IndexedStack(
-            index: _selectedIndex,
-            children: _pages,
-          ),
+          child: IndexedStack(index: _selectedIndex, children: _pages),
         ), // End SafeArea
       ),
       bottomNavigationBar: Container(
@@ -193,10 +196,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         shape: const CircleBorder(),
         child: const Icon(Icons.emergency_outlined, color: Colors.white),
       ).animate().scale(
-            duration: 700.ms,
-            curve: Curves.elasticOut,
-            delay: 300.ms,
-          ),
+        duration: 700.ms,
+        curve: Curves.elasticOut,
+        delay: 300.ms,
+      ),
     );
   }
 
@@ -205,17 +208,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return BottomNavigationBarItem(
       icon: Icon(icon, size: 24),
       activeIcon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(
-          icon,
-          size: 24,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      )
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              icon,
+              size: 24,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          )
           .animate()
           .scale(
             duration: 200.ms,
@@ -247,24 +250,28 @@ class HomePageContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
       children: [
-        _buildHeader(context),
-        const SizedBox(height: 24),
-        _buildHealthStats(context),
-        const SizedBox(height: 30),
-        _buildSectionTitle('Daily Health Tips', context),
-        const SizedBox(height: 16),
-        _buildHealthTips(context),
-        const SizedBox(height: 30),
-        _buildNextMedicineDue(context),
-        const SizedBox(height: 30),
-        _buildSectionTitle('Health Updates', context),
-        const SizedBox(height: 16),
-        _buildHealthUpdates(context),
-      ]
+            _buildHeader(context),
+            const SizedBox(height: 24),
+            _buildHealthStats(context),
+            const SizedBox(height: 30),
+            _buildSectionTitle('Daily Health Tips', context),
+            const SizedBox(height: 16),
+            _buildHealthTips(context),
+            const SizedBox(height: 30),
+            _buildNextMedicineDue(context),
+            const SizedBox(height: 30),
+            _buildSectionTitle('Health Updates', context),
+            const SizedBox(height: 16),
+            _buildHealthUpdates(context),
+          ]
           .animate(interval: 50.ms)
           .fadeIn(duration: 400.ms, curve: Curves.easeOutQuad)
           .slideY(
-              begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOutQuad),
+            begin: 0.1,
+            end: 0,
+            duration: 400.ms,
+            curve: Curves.easeOutQuad,
+          ),
     );
   }
 
@@ -327,95 +334,104 @@ class HomePageContent extends StatelessWidget {
             child: const Icon(Icons.favorite_rounded, color: Colors.white),
           ),
         ).animate().scale(
-              duration: 300.ms,
-              curve: Curves.easeOut,
-              delay: 200.ms,
-            ),
+          duration: 300.ms,
+          curve: Curves.easeOut,
+          delay: 200.ms,
+        ),
       ],
     );
   }
 
   Widget _buildHealthStats(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 15),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.primary.withAlpha(204),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withAlpha(77),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 15),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.primary.withAlpha(204),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withAlpha(77),
+                spreadRadius: 1,
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
             children: [
-              Text(
-                'Todays Health',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Todays Health',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontSize: _getResponsiveFontSize(context, 16),
                     ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(51),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_rounded,
-                      color: Colors.white,
-                      size: _getResponsiveFontSize(context, 14),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'April 7', // Assuming this should be dynamic later
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(51),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          color: Colors.white,
+                          size: _getResponsiveFontSize(context, 14),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'April 7', // Assuming this should be dynamic later
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
                             color: Colors.white.withAlpha(230),
                             fontSize: _getResponsiveFontSize(context, 13),
                             fontWeight: FontWeight.w500,
                           ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildStatItem(
+                    context,
+                    '8,546',
+                    'Steps',
+                    Icons.directions_walk_rounded,
+                  ),
+                  _buildStatItem(
+                    context,
+                    '6.2',
+                    'Hours',
+                    Icons.nightlight_rounded,
+                  ),
+                  _buildStatItem(context, '72', 'BPM', Icons.favorite_rounded),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildStatItem(
-                  context, '8,546', 'Steps', Icons.directions_walk_rounded),
-              _buildStatItem(context, '6.2', 'Hours', Icons.nightlight_rounded),
-              _buildStatItem(context, '72', 'BPM', Icons.favorite_rounded),
-            ],
-          ),
-        ],
-      ),
-    )
-        .animate()
-        .fadeIn(
-          duration: 600.ms,
-          curve: Curves.easeOut,
-          delay: 200.ms,
         )
+        .animate()
+        .fadeIn(duration: 600.ms, curve: Curves.easeOut, delay: 200.ms)
         .slideY(
           begin: 0.2,
           end: 0,
@@ -426,7 +442,11 @@ class HomePageContent extends StatelessWidget {
   }
 
   Widget _buildStatItem(
-      BuildContext context, String value, String label, IconData icon) {
+    BuildContext context,
+    String value,
+    String label,
+    IconData icon,
+  ) {
     return Column(
       children: [
         Container(
@@ -445,16 +465,16 @@ class HomePageContent extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.white,
-                fontSize: _getResponsiveFontSize(context, 18),
-              ),
+            color: Colors.white,
+            fontSize: _getResponsiveFontSize(context, 18),
+          ),
         ),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.white.withAlpha(204),
-                fontSize: _getResponsiveFontSize(context, 12),
-              ),
+            color: Colors.white.withAlpha(204),
+            fontSize: _getResponsiveFontSize(context, 12),
+          ),
         ),
       ],
     );
@@ -474,9 +494,9 @@ class HomePageContent extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('View all $title')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('View all $title')));
           },
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.primary,
@@ -506,9 +526,10 @@ class HomePageContent extends StatelessWidget {
             iconColor: Colors.blue.shade700,
             title: 'Healthy Diet',
             subtitle: 'Include fruits and vegetables in your daily meals',
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Healthy Diet tips accessed')),
-            ),
+            onTap:
+                () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Healthy Diet tips accessed')),
+                ),
           ),
         ),
         const SizedBox(width: 16),
@@ -520,9 +541,10 @@ class HomePageContent extends StatelessWidget {
             iconColor: Colors.green.shade700,
             title: 'Exercise',
             subtitle: 'Stay active for at least 30 minutes a day',
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Exercise tips accessed')),
-            ),
+            onTap:
+                () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Exercise tips accessed')),
+                ),
           ),
         ),
       ],
@@ -534,111 +556,123 @@ class HomePageContent extends StatelessWidget {
     final Color secondaryColor = Theme.of(context).colorScheme.secondary;
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-      color: primaryColor.withOpacity(0.05),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-        child: Container(
-          decoration: BoxDecoration(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
-            gradient: LinearGradient(
-              colors: [
-                primaryColor.withOpacity(0.05),
-                primaryColor.withOpacity(0.01),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: secondaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(14.0),
-                      ),
-                      child: Text(
-                        'Next Medicine Due',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: secondaryColor.withOpacity(0.9),
+          color: primaryColor.withValues(alpha: 0.05),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 24.0,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                gradient: LinearGradient(
+                  colors: [
+                    primaryColor.withValues(alpha: 0.05),
+                    primaryColor.withValues(alpha: 0.01),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: secondaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(14.0),
+                          ),
+                          child: Text(
+                            'Next Medicine Due',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: secondaryColor.withValues(alpha: 0.9),
                               fontSize: _getResponsiveFontSize(context, 13),
                               fontWeight: FontWeight.w500,
                             ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: secondaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(
-                            Icons.medication_rounded,
-                            color: secondaryColor,
-                            size: 20,
-                          ),
-                        )
-                            .animate()
-                            .scale(duration: 300.ms, curve: Curves.elasticOut),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Vitamin D3', // Example name
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: secondaryColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                Icons.medication_rounded,
+                                color: secondaryColor,
+                                size: 20,
+                              ),
+                            ).animate().scale(
+                              duration: 300.ms,
+                              curve: Curves.elasticOut,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Vitamin D3', // Example name
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: _getResponsiveFontSize(context, 18),
                                 fontWeight: FontWeight.bold,
                               ),
-                        ).animate().fadeIn(duration: 300.ms),
+                            ).animate().fadeIn(duration: 300.ms),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Row(children: _buildCountdown(context)),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: _buildCountdown(context),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Medicine taken!')),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: secondaryColor,
-                  foregroundColor: Colors.white,
-                  elevation: 3,
-                  shadowColor: Colors.black.withAlpha(40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                ),
-                child: const Text('Take Now'),
-              ).animate().scale(
-                  delay: 200.ms, duration: 400.ms, curve: Curves.elasticOut),
-            ],
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Medicine taken!')),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: secondaryColor,
+                      foregroundColor: Colors.white,
+                      elevation: 3,
+                      shadowColor: Colors.black.withAlpha(40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
+                    ),
+                    child: const Text('Take Now'),
+                  ).animate().scale(
+                    delay: 200.ms,
+                    duration: 400.ms,
+                    curve: Curves.elasticOut,
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(duration: 400.ms)
         .slideX(begin: 0.2, duration: 400.ms, curve: Curves.easeOut);
@@ -652,40 +686,45 @@ class HomePageContent extends StatelessWidget {
     const String seconds = '30';
 
     TextStyle numberStyle = Theme.of(context).textTheme.titleLarge!.copyWith(
-          color: onSurfaceColor,
-          fontWeight: FontWeight.bold,
-          fontSize: _getResponsiveFontSize(context, 22),
-        );
+      color: onSurfaceColor,
+      fontWeight: FontWeight.bold,
+      fontSize: _getResponsiveFontSize(context, 22),
+    );
     TextStyle labelStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
-          color: onSurfaceColor.withOpacity(0.6),
-          fontSize: _getResponsiveFontSize(context, 10),
-        );
+      color: onSurfaceColor.withValues(alpha: 0.6),
+      fontSize: _getResponsiveFontSize(context, 10),
+    );
     TextStyle separatorStyle = Theme.of(context).textTheme.titleLarge!.copyWith(
-          color: primaryColor.withOpacity(0.5),
-          fontWeight: FontWeight.bold,
-          fontSize: _getResponsiveFontSize(context, 20),
-        );
+      color: primaryColor.withValues(alpha: 0.5),
+      fontWeight: FontWeight.bold,
+      fontSize: _getResponsiveFontSize(context, 20),
+    );
 
     return [
-      _buildTimePart(context, hours, 'hr', numberStyle, labelStyle),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: Text(':', style: separatorStyle),
-      ),
-      _buildTimePart(context, minutes, 'min', numberStyle, labelStyle),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: Text(':', style: separatorStyle),
-      ),
-      _buildTimePart(context, seconds, 'sec', numberStyle, labelStyle),
-    ]
+          _buildTimePart(context, hours, 'hr', numberStyle, labelStyle),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(':', style: separatorStyle),
+          ),
+          _buildTimePart(context, minutes, 'min', numberStyle, labelStyle),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(':', style: separatorStyle),
+          ),
+          _buildTimePart(context, seconds, 'sec', numberStyle, labelStyle),
+        ]
         .animate(interval: 100.ms)
         .fadeIn(duration: 300.ms)
         .slideY(begin: 0.2, end: 0);
   }
 
-  Widget _buildTimePart(BuildContext context, String value, String label,
-      TextStyle numberStyle, TextStyle labelStyle) {
+  Widget _buildTimePart(
+    BuildContext context,
+    String value,
+    String label,
+    TextStyle numberStyle,
+    TextStyle labelStyle,
+  ) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -705,9 +744,10 @@ class HomePageContent extends StatelessWidget {
           iconColor: Colors.orange.shade700,
           title: 'New Health Article',
           subtitle: 'Benefits of Meditation',
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Health Article tapped')),
-          ),
+          onTap:
+              () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Health Article tapped')),
+              ),
         ),
         _buildUpdateItem(
           context: context,
@@ -716,9 +756,10 @@ class HomePageContent extends StatelessWidget {
           iconColor: Colors.purple.shade700,
           title: 'Upcoming Appointment',
           subtitle: 'Dr. Smith - April 10th',
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Appointment tapped')),
-          ),
+          onTap:
+              () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Appointment tapped')),
+              ),
         ),
       ],
     );
@@ -758,15 +799,15 @@ class HomePageContent extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontSize: _getResponsiveFontSize(context, 15),
-                    ),
+                  fontSize: _getResponsiveFontSize(context, 15),
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: _getResponsiveFontSize(context, 13),
-                    ),
+                  fontSize: _getResponsiveFontSize(context, 13),
+                ),
               ),
             ],
           ),
@@ -812,15 +853,15 @@ class HomePageContent extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontSize: _getResponsiveFontSize(context, 15),
-                          ),
+                        fontSize: _getResponsiveFontSize(context, 15),
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: _getResponsiveFontSize(context, 13),
-                          ),
+                        fontSize: _getResponsiveFontSize(context, 13),
+                      ),
                     ),
                   ],
                 ),

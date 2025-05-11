@@ -102,7 +102,7 @@ class MedicationDetailsScreen extends StatelessWidget {
                 child: Icon(
                   Icons.medication_rounded,
                   size: 200,
-                  color: theme.colorScheme.primary.withOpacity(0.2),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.2),
                 ),
               ),
             ],
@@ -137,7 +137,7 @@ class MedicationDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.1),
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -161,7 +161,7 @@ class MedicationDetailsScreen extends StatelessWidget {
                   Text(
                     medication.description,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.2),
                 ],
@@ -307,7 +307,7 @@ class MedicationDetailsScreen extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.1),
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -346,7 +346,7 @@ class MedicationDetailsScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.1),
+            color: theme.colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -359,7 +359,7 @@ class MedicationDetailsScreen extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(width: 8),
@@ -521,7 +521,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.1),
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
           ),
         ),
         child: Row(
@@ -573,7 +573,7 @@ class _ReminderSheetState extends State<_ReminderSheet> {
               border: Border.all(
                 color: _selectedDays[index]
                     ? Colors.transparent
-                    : theme.colorScheme.outline.withOpacity(0.1),
+                    : theme.colorScheme.outline.withValues(alpha: 0.1),
               ),
             ),
             child: Center(
